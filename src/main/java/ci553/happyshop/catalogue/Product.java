@@ -79,15 +79,11 @@ public class Product implements Comparable<Product> {
     }
 
 
-    /** alternative constructors retained for possible future use.
-     *
-    public Product(String id, String des, double aPrice, int orderedQuantity) {
+    /** alternative constructors retained for possible future use. **/
+    public Product(String id, String des, double aPrice) {
         proId = id;
         proDescription = des;
         unitPrice = aPrice;
-        this.orderedQuantity = orderedQuantity;
     }
-     */
-
 }
 

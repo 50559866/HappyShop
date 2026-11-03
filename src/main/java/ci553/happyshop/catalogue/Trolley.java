@@ -59,7 +59,17 @@ public class Trolley {
      * }
      */
     public void addProduct(Product product) {
-        products.add(product); // product is appended to the end of the trolley
+        for(Product p: products){   /*iterate through products in the trolley*/
+            if (product.getProductId().equals(p.getProductId())) {   /*if product is already on the trolley*/
+                p.setOrderedQuantity(p.getOrderedQuantity()+product.getOrderedQuantity());  /*add together the products, used p on both but one should be product, otherwise it doubles*/
+                return;
+            }
+        }
+        Product copy = new Product(product.getProductId(),  /*alternate constructors in product class*/
+                product.getProductDescription(),
+                product.getUnitPrice());
+
+        products.add(copy); // product is appended to the end of the trolley
     }
 
     public ArrayList<Product> getProducts() {
