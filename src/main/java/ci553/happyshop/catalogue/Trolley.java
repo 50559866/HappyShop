@@ -1,6 +1,7 @@
 package ci553.happyshop.catalogue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Trolley {
 
@@ -70,6 +71,7 @@ public class Trolley {
                 product.getUnitPrice());
 
         products.add(copy); // product is appended to the end of the trolley
+        Collections.sort(products); /*sort products in by OrderId, Is there ways to test this in junit?*/
     }
 
     public ArrayList<Product> getProducts() {
