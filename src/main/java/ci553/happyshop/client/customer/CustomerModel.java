@@ -3,14 +3,15 @@ package ci553.happyshop.client.customer;
 import ci553.happyshop.catalogue.Order;
 import ci553.happyshop.catalogue.Product;
 import ci553.happyshop.catalogue.Trolley;
+import ci553.happyshop.client.warehouse.HistoryWindow;
 import ci553.happyshop.storageAccess.DatabaseRW;
 import ci553.happyshop.orderManagement.OrderHub;
 import ci553.happyshop.utility.StorageLocation;
 import ci553.happyshop.utility.ProductListFormatter;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public class CustomerModel {
     public CustomerView cusView; //part of MVC
     private DatabaseRW databaseRW; //Interface type, not specific implementation
                                   //Benefits: Flexibility: Easily change the database implementation.
+    public RemoveProductNotifier removeProductNotifier;
 
     private Product searchResult =null; // product found from search
     private Trolley trolley =  new Trolley(); // holds the products currently in the customer's trolley
@@ -129,11 +131,22 @@ public class CustomerModel {
                 //TODO
                 // Add the following logic here:
                 // 1. Remove products with insufficient stock from the trolley.
-                // 2. Trigger a message window to notify the customer about the insufficient stock, rather than directly changing displayLaSearchResult.
+
+                for (Product p : trolley.getProducts()) {  /*check through products that are in the trolley*/
+                    for (Product insufficientProd : insufficientProducts) {/*check through insufficnet products*/
+                        if (p.getProductId().equals(insufficientProd.getProductId())) {  /*if product in trolley matchs insufficnet item*/
+                            p.setOrderedQuantity(insufficientProd.getStockQuantity());  /*update quanity*/
+                        }
+                    }
+                }
+
+                // 2. Trigger a message window to notify the customer about the insufficient stock, rather than directly changing displayLaSearchResult.up
+                removeProductNotifier.showRemovalMsg(errorMsg.toString());
+
                 //You can use the provided RemoveProductNotifier class and its showRemovalMsg method for this purpose.
                 //remember close the message window where appropriate (using method closeNotifierWindow() of RemoveProductNotifier class)
-                searchResultProductText = "Checkout failed due to insufficient stock for the following products:\n" + errorMsg.toString();
-                System.out.println("stock is not enough");
+                //searchResultProductText = "Checkout failed due to insufficient stock for the following products:\n" + errorMsg.toString();
+                //System.out.println("stock is not enough");
             }
         }
         else{
@@ -142,6 +155,7 @@ public class CustomerModel {
         }
         updateView();
     }
+
 
     /**
      * Groups products by their productId to optimize database queries and updates.
@@ -195,3 +209,7 @@ public class CustomerModel {
         return trolley;
     }
 }
+
+
+
+
