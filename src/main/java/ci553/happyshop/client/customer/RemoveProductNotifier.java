@@ -43,7 +43,7 @@ public class RemoveProductNotifier {
 
     // Create the Scene (only once)
     private void createScene() {
-        Label laTitle = new Label("\u26A0 Some changes have been made to your trolley."); // ⚠️
+        Label laTitle = new Label("\u26A0 The following items have been removed:"); // ⚠️ label updated to make message clearer
         laTitle.setStyle(UIStyle.alertTitleLabelStyle);
 
         taRemoveMsg = new TextArea();
@@ -100,7 +100,7 @@ public class RemoveProductNotifier {
         window.setTitle("🛒Products removal notifier");
         window.setScene(scene);
 
-        //get bounds of betterCustomer window which trigers the ProductRemovalNotifier
+        //get bounds of betterCustomer window which triggers the ProductRemovalNotifier
         // so that we can put the ProductRemovalNotifier at a suitable position
         WindowBounds bounds = cusView.getWindowBounds();
         window.setX(bounds.x + bounds.width -WIDTH -10); // Position to the right of warehouse window

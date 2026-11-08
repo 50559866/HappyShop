@@ -3,15 +3,14 @@ package ci553.happyshop.client.customer;
 import ci553.happyshop.catalogue.Order;
 import ci553.happyshop.catalogue.Product;
 import ci553.happyshop.catalogue.Trolley;
-import ci553.happyshop.client.warehouse.HistoryWindow;
 import ci553.happyshop.storageAccess.DatabaseRW;
 import ci553.happyshop.orderManagement.OrderHub;
 import ci553.happyshop.utility.StorageLocation;
 import ci553.happyshop.utility.ProductListFormatter;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +19,7 @@ import java.util.Map;
 public class CustomerModel {
     public CustomerView cusView; //part of MVC
     private DatabaseRW databaseRW; //Interface type, not specific implementation
-                                  //Benefits: Flexibility: Easily change the database implementation.
+    //Benefits: Flexibility: Easily change the database implementation.
     public RemoveProductNotifier removeProductNotifier;
 
     private Product searchResult =null; // product found from search
@@ -28,19 +27,19 @@ public class CustomerModel {
 
     // Data passed to CustomerView for UI updates (including search, trolley and receipt page)
     private String searchResultImageName = "imageHolder.jpg";
-                    // Image file name representing the current search result.
-                    // - Product image if a product is found
-                   // - Default placeholder image otherwise
+    // Image file name representing the current search result.
+    // - Product image if a product is found
+    // - Default placeholder image otherwise
     private String searchResultProductText = "No product has been searched yet";
-                  // Textual representation of the product from the search result.
-                  // - Shows product details (e.g. "0001, 40-inch TV, ...") if found
-                 // - Otherwise shows a status message
+    // Textual representation of the product from the search result.
+    // - Shows product details (e.g. "0001, 40-inch TV, ...") if found
+    // - Otherwise shows a status message
     private String trolleyContentsText = "";
-                 // Textual representation of current trolley contents,
-                 // used for display in the Trolley page
+    // Textual representation of current trolley contents,
+    // used for display in the Trolley page
     private String receiptContentsText = "";
-                 // Textual representation of the generated receipt after checkout,
-                // used for display in the Receipt page
+    // Textual representation of the generated receipt after checkout,
+    // used for display in the Receipt page
 
     // Dependency Injection via constructor
     public CustomerModel(DatabaseRW databaseRW){
@@ -104,6 +103,7 @@ public class CustomerModel {
 
             if(insufficientProducts.isEmpty()){ // If stock is sufficient for all products
                 //get OrderHub and tell it to make a new Order
+                removeProductNotifier.closeNotifierWindow(); /* close notifer window during successsful checkout */
                 OrderHub orderHub =OrderHub.getOrderHub();
                 Order theOrder = orderHub.newOrder(trolley.getProducts());
                 trolley.clear();
@@ -121,32 +121,26 @@ public class CustomerModel {
             else{ // Some products have insufficient stock — build an error message to inform the customer
                 StringBuilder errorMsg = new StringBuilder();
                 for(Product p : insufficientProducts){
+                    trolley.getProducts().removeIf(product -> product.getProductId().equals(p.getProductId()));
                     errorMsg.append("\u2022 "+ p.getProductId()).append(", ")
                             .append(p.getProductDescription()).append(" (Only ")
                             .append(p.getStockQuantity()).append(" available, ")
                             .append(p.getOrderedQuantity()).append(" requested)\n");
                 }
-                searchResult =null;
 
+                trolleyContentsText = ProductListFormatter.buildString(trolley.getProducts());
+                searchResult =null;
                 //TODO
                 // Add the following logic here:
                 // 1. Remove products with insufficient stock from the trolley.
-
-                for (Product p : trolley.getProducts()) {  /*check through products that are in the trolley*/
-                    for (Product insufficientProd : insufficientProducts) {/*check through insufficnet products*/
-                        if (p.getProductId().equals(insufficientProd.getProductId())) {  /*if product in trolley matchs insufficnet item*/
-                            p.setOrderedQuantity(insufficientProd.getStockQuantity());  /*update quanity*/
-                        }
-                    }
-                }
-
-                // 2. Trigger a message window to notify the customer about the insufficient stock, rather than directly changing displayLaSearchResult.up
+                // 2. Trigger a message window to notify the customer about the insufficient stock, rather than directly changing displayLaSearchResult.
                 removeProductNotifier.showRemovalMsg(errorMsg.toString());
+
 
                 //You can use the provided RemoveProductNotifier class and its showRemovalMsg method for this purpose.
                 //remember close the message window where appropriate (using method closeNotifierWindow() of RemoveProductNotifier class)
-                //searchResultProductText = "Checkout failed due to insufficient stock for the following products:\n" + errorMsg.toString();
-                //System.out.println("stock is not enough");
+                searchResultProductText = "Checkout failed due to insufficient stock for the following products:\n" + errorMsg.toString();
+                System.out.println("stock is not enough");
             }
         }
         else{
@@ -155,7 +149,6 @@ public class CustomerModel {
         }
         updateView();
     }
-
 
     /**
      * Groups products by their productId to optimize database queries and updates.
@@ -200,16 +193,12 @@ public class CustomerModel {
         }
         cusView.update(searchResultImageName, searchResultProductText, trolleyContentsText, receiptContentsText);
     }
-     // extra notes:
-     //Path.toUri(): Converts a Path object (a file or a directory path) to a URI object.
-     //File.toURI(): Converts a File object (a file on the filesystem) to a URI object
+    // extra notes:
+    //Path.toUri(): Converts a Path object (a file or a directory path) to a URI object.
+    //File.toURI(): Converts a File object (a file on the filesystem) to a URI object
 
     //for test
     public Trolley getTrolley() {
         return trolley;
     }
 }
-
-
-
-
