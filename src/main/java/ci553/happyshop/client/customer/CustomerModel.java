@@ -103,6 +103,7 @@ public class CustomerModel {
 
             if(insufficientProducts.isEmpty()){ // If stock is sufficient for all products
                 //get OrderHub and tell it to make a new Order
+                removeProductNotifier.closeNotifierWindow(); /* close notifer window during successsful checkout */
                 OrderHub orderHub =OrderHub.getOrderHub();
                 Order theOrder = orderHub.newOrder(trolley.getProducts());
                 trolley.clear();
